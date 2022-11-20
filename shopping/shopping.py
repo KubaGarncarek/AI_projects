@@ -1,6 +1,7 @@
 import csv
 import sys
 import datetime
+import random
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 
@@ -73,8 +74,8 @@ def load_data(filename):
                 int(row[11]), int(row[12]), int(row[13]), int(row[14]),
                 int(row[15] == "Returning_Visitor"), int(row[16] == "TRUE")
             ])
-            labels.append([int(row[17] == "TRUE")])
-
+            labels.append(int(row[17] == "TRUE"))
+    print(labels)
     return data
 
 def train_model(evidence, labels):
@@ -82,7 +83,10 @@ def train_model(evidence, labels):
     Given a list of evidence lists and a list of labels, return a
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
-    raise NotImplementedError
+    model = KNeighborsClassifier(n_neighbors=1)
+    
+    return model.fit(evidence,labels)
+    
 
 
 def evaluate(labels, predictions):
@@ -100,7 +104,29 @@ def evaluate(labels, predictions):
     representing the "true negative rate": the proportion of
     actual negative labels that were accurately identified.
     """
-    raise NotImplementedError
+    sensitivity_incorect = 0
+    sensitivity_corect = 0
+    specificity_incorect = 0
+    specificity_corect = 0
+    print(len(predictions))
+    for actual, predicted in zip(labels, predictions):
+        if actual == 1:
+            
+            if int(actual) == int(predicted):
+                sensitivity_corect +=1
+            else:
+                sensitivity_incorect +=1
+        else:
+            if actual == predicted:
+                specificity_corect +=1
+            else:
+                specificity_incorect +=1
+    print(sensitivity_corect)
+    sensitivity = round(float((sensitivity_corect)/(sensitivity_corect+sensitivity_incorect)),4)
+    specificity = round(float((specificity_corect)/(specificity_corect+specificity_incorect)),4)
+
+    return (sensitivity, specificity)
+    
 
 def get_month_number(month):
     months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
