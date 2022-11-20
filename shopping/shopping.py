@@ -1,6 +1,6 @@
 import csv
 import sys
-
+import datetime
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 
@@ -26,7 +26,7 @@ def main():
 
     # Print results
     print(f"Correct: {(y_test == predictions).sum()}")
-    print(f"Incorrect: {(y_test != predictions).sum()}")
+    print(f"Incorrect: {(y_test != predictions).sum()}") 
     print(f"True Positive Rate: {100 * sensitivity:.2f}%")
     print(f"True Negative Rate: {100 * specificity:.2f}%")
 
@@ -59,8 +59,23 @@ def load_data(filename):
     labels should be the corresponding list of labels, where each label
     is 1 if Revenue is true, and 0 otherwise.
     """
-    raise NotImplementedError
+    with open(filename) as f:
+        reader = csv.reader(f)
+        next(reader)
+        evidence = []
+        labels = []
+        data = (evidence, labels)
+        for row in reader:
+            evidence.append([
+                int(row[0]), float(row[1]), int(row[2]), float(row[3]),
+                int(row[4]), float(row[5]), float(row[6]), float(row[7]),
+                float(row[8]), float(row[9]), get_month_number(row[10]),
+                int(row[11]), int(row[12]), int(row[13]), int(row[14]),
+                int(row[15] == "Returning_Visitor"), int(row[16] == "TRUE")
+            ])
+            labels.append([int(row[17] == "TRUE")])
 
+    return data
 
 def train_model(evidence, labels):
     """
@@ -86,6 +101,10 @@ def evaluate(labels, predictions):
     actual negative labels that were accurately identified.
     """
     raise NotImplementedError
+
+def get_month_number(month):
+    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    return months.index(month)
 
 
 if __name__ == "__main__":
