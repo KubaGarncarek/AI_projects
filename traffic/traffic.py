@@ -3,6 +3,7 @@ import numpy as np
 import os
 import sys
 import tensorflow as tf
+import time 
 
 from sklearn.model_selection import train_test_split
 
@@ -15,6 +16,7 @@ TEST_SIZE = 0.4
 
 def main():
 
+    start = time.time()
     # Check command-line arguments
     if len(sys.argv) not in [2, 3]:
         sys.exit("Usage: python traffic.py data_directory [model.h5]")
@@ -37,12 +39,13 @@ def main():
     # Evaluate neural network performance
     model.evaluate(x_test,  y_test, verbose=2)
 
+    end = time.time()
     # Save model to file
     if len(sys.argv) == 3:
         filename = sys.argv[2]
         model.save(filename)
         print(f"Model saved to {filename}.")
-
+    print(end-start)
 
 def load_data(data_dir):
     """
@@ -61,14 +64,12 @@ def load_data(data_dir):
     images = []
     labels = []
     for category in os.listdir(data_dir):
-        if category == ".DS_Store":
-            continue
-        
+
         for image in os.listdir(os.path.join(data_dir, category)):
             img = cv2.imread(os.path.join(data_dir, category,image))
 
-            resized_image = cv2.resize(img,(7*IMG_WIDTH, 7*IMG_HEIGHT), interpolation = cv2.INTER_LINEAR)
-            images.append(resized_image)
+            resized_image = cv2.resize(img,(IMG_WIDTH, IMG_HEIGHT), interpolation = cv2.INTER_LINEAR)
+            images.append(resized_image/255)
             labels.append(category)
         
     return (images, labels)
@@ -79,7 +80,35 @@ def get_model():
     `input_shape` of the first layer is `(IMG_WIDTH, IMG_HEIGHT, 3)`.
     The output layer should have `NUM_CATEGORIES` units, one for each category.
     """
-    raise NotImplementedError
+    # Create a convolutional neural network
+    model = tf.keras.models.Sequential([
+
+        # Convolutional layer. Learn 32 filters using a 3x3 kernel
+        tf.keras.layers.Conv2D(
+            32, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
+        ),
+    
+
+        # Max-pooling layer, using 2x2 pool size
+        tf.keras.layers.MaxPooling2D(pool_size=(3, 3)),
+
+        # Flatten units
+        tf.keras.layers.Flatten(),
+
+        # Add a hidden layer with dropout
+        tf.keras.layers.Dense(126, activation="relu"),
+        
+        tf.keras.layers.Dropout(0.5),
+
+        # Add an output layer with output units for all 10 digits
+        tf.keras.layers.Dense(NUM_CATEGORIES, activation="softmax")
+    ])
+    model.compile(
+        optimizer="adam",
+        loss="categorical_crossentropy",
+        metrics=["accuracy"]
+    )
+    return model
 
 
 if __name__ == "__main__":
