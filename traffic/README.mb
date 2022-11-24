@@ -1,0 +1,11 @@
+I started my experimentation process with one convolutional layer, one pooling layer, 32 filters, size of filter queal (3,3), pool size (2,2), one hidden layer with 128 units and dropout set to 0.5.
+Then I set up number of filters on 10, which shorted running time of program and similary value of loss and accuracy.
+Next I tried add secound hidden layer, then reduced number of units in the hidden layers, it didn't make loss and accuracy better and incresed running time by a lot.
+Then I changed pool size for pooling layer to (3,3), which incresed value of running time and loss 
+
+I think that reduction number of filters was quite good idea, if our goal will be to reduce running time of program with similary value of loss and accuracy.
+Adding another hidden layer and reduction number of units in hidden layer didn't work very well, the best results I got with one hidden layer and relativity high number of units.
+Pool size (2,2) is better than (3,3) for this problem. I think that (3,3) may work better for picture with bigger size.
+
+This experimentation process show me that mostly more complex neutral networks can give better loss and accuracy values, but also increse running time of program's.
+Degree of complexity of neutral networks should be customized to particular problem and the ratio of the quality of the results to the duration of the program that we want to get.
