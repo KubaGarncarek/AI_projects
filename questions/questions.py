@@ -3,6 +3,7 @@ import math
 import sys
 import os
 import string
+import operator
 
 FILE_MATCHES = 1
 SENTENCE_MATCHES = 1
@@ -102,8 +103,19 @@ def top_files(query, files, idfs, n):
     to their IDF values), return a list of the filenames of the the `n` top
     files that match the query, ranked according to tf-idf.
     """
-    raise NotImplementedError
-
+    tfidfs = dict()
+    for filename, text in files.items():
+        for word in query:
+            tf = sum(value == word for value in text)
+            try:
+                tfidfs[filename] += tf*idfs[word]
+            except KeyError:
+                tfidfs[filename] = tf*idfs[word]
+            
+    sorted_d = dict( sorted(tfidfs.items(), key=operator.itemgetter(1),reverse=True))
+    sorted_list = list(sorted_d.keys())
+   
+    return sorted_list[0:n]
 
 def top_sentences(query, sentences, idfs, n):
     """
