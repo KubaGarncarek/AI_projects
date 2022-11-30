@@ -68,13 +68,15 @@ def tokenize(document):
     Process document by coverting all words to lowercase, and removing any
     punctuation or English stopwords.
     """
+    without_stopwords = []
+
     stopwords = set(nltk.corpus.stopwords.words("english"))
     list_of_words = [word.lower() for word in nltk.word_tokenize(document)]
+    
     for word in list_of_words:
-        if word in string.punctuation or word in stopwords:
-            list_of_words.remove(word)
-    return list_of_words
-
+        if word not in string.punctuation and word not in stopwords:
+            without_stopwords.append(word)
+    return without_stopwords
 
 def compute_idfs(documents):
     """
@@ -125,8 +127,22 @@ def top_sentences(query, sentences, idfs, n):
     the query, ranked according to idf. If there are ties, preference should
     be given to sentences that have a higher query term density.
     """
-    raise NotImplementedError
+    sentence_rank = {}
+    for sentence in sentences:
+        sentence_rank[sentence] = {}
+        sentence_length = len(sentences[sentence])
+        sentence_rank[sentence]["idfs"] = 0
+        sentence_rank[sentence]['word_count'] = 0
+        for word in query:
+            if word in sentences[sentence]:
+                sentence_rank[sentence]['idfs'] += idfs[word]
+                sentence_rank[sentence]["word_count"] += 1
+        sentence_rank[sentence]["qtd"] = float(sentence_rank[sentence]["word_count"]/sentence_length)
+        
+    sorted_list = sorted(sentence_rank, key=lambda sentence: (sentence_rank[sentence]["idfs"], sentence_rank[sentence]["qtd"]), reverse=True)
+        
+    return sorted_list[0:n]
 
-
+    
 if __name__ == "__main__":
     main()
