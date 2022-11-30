@@ -59,20 +59,17 @@ def transition_model(corpus, page, damping_factor):
     """
     probability_distribution = dict()
 
-    if not corpus[page]:
+    if not page in corpus.keys():
         for page in corpus:
-            probability_distribution[page] = 1 / len(corpus)\
+            probability_distribution[page] = 1 / len(corpus)
 
             return probability_distribution
 
-    for link in corpus[page]:
-        probability_distribution[link] = damping_factor / len(corpus[page])
-    
-    for page in corpus:
-        try:
-            probability_distribution[page] += (1-damping_factor) / len(corpus)
-        except KeyError:
-            probability_distribution[page] = (1-damping_factor) / len(corpus)
+    for link in corpus.keys():
+        probability_distribution[link] = (1-damping_factor) / len(corpus)
+        if link in corpus[page]:
+
+            probability_distribution[link] += damping_factor / len(corpus[page])
 
     return probability_distribution
 
@@ -86,7 +83,21 @@ def sample_pagerank(corpus, damping_factor, n):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    returned_rank = dict()
+    first_sample = random.choice(list(corpus.keys()))
+    
+    probability_distribution = transition_model(corpus, first_sample, damping_factor)
+
+    for _ in range(n-1):
+        
+        sample = random.choices(list(corpus.keys()), weights=list(probability_distribution.values()), k=1)[0]
+        try:
+            returned_rank[sample] += 1/n
+        except KeyError:
+            returned_rank[sample] = 1/n
+        probability_distribution = transition_model(corpus, sample, damping_factor)
+        
+    return returned_rank
 
 
 def iterate_pagerank(corpus, damping_factor):
