@@ -89,7 +89,7 @@ def sample_pagerank(corpus, damping_factor, n):
     probability_distribution = transition_model(corpus, first_sample, damping_factor)
 
     for _ in range(n-1):
-        
+
         sample = random.choices(list(corpus.keys()), weights=list(probability_distribution.values()), k=1)[0]
         try:
             returned_rank[sample] += 1/n
@@ -109,7 +109,29 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    page_rank = dict()
+    N = len(corpus)
+    
+    for page in corpus:
+        page_rank[page] = 1 / N
+
+    while True:
+        is_accurate = True
+        for page in corpus:
+
+            old_rank = page_rank[page]
+            i_pages = [i_page for i_page in corpus if page in corpus[i_page]]
+
+            page_rank[page] = (1- damping_factor) / N + damping_factor * sum([(page_rank[i] / len(corpus[i])) for i in i_pages])
+            new_rank = page_rank[page]
+
+            if abs(new_rank - old_rank) > 0.001:
+                is_accurate = False
+
+        if is_accurate == True:
+            break
+
+    return page_rank
 
 
 if __name__ == "__main__":
